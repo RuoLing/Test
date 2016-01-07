@@ -1,17 +1,21 @@
 package com.simple.download.bean;
 
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 
 import com.simple.download.constant.Constant;
 
-public class DownLoadInfo {
-	private RandomAccessFile randomAccessFile;
+public class DownLoadInfo implements Serializable {
+	private static final long serialVersionUID = 73015694943119752L;
 	private int startPos;
 	private int endPos;
-	private String downloadUrl;
+	private int completeLength;
 	private int connectTimeout = Constant.CONNECT_TIMEOUT;
 	private int readTimeout = Constant.READ_TIMEOUT;
 	private int bufferSize = Constant.BUFFER_SIZE;
+	private String downloadUrl;
+	private String status;
+	private RandomAccessFile randomAccessFile;
 
 	public RandomAccessFile getRandomAccessFile() {
 		return randomAccessFile;
@@ -67,6 +71,22 @@ public class DownLoadInfo {
 
 	public void setBufferSize(int bufferSize) {
 		this.bufferSize = bufferSize;
+	}
+
+	public int getCompleteLength() {
+		return completeLength;
+	}
+
+	public void setCompleteLength(int completeLength) {
+		this.completeLength = completeLength;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }

@@ -1,10 +1,12 @@
 package com.simple.download.bean;
 
+import com.simple.download.constant.Constant;
+
 public class DownLoadConfig {
 	private String url;
 	private String filename;
-	private String fileSavePath;
-	private Integer threadNumber;
+	private String fileSavePath = Constant.FILE_SAVE_PATH;
+	private Integer threadNumber = Constant.DOWNLOAD_THREAD_NUMBER;
 
 	public String getUrl() {
 		return url;
@@ -27,6 +29,9 @@ public class DownLoadConfig {
 	}
 
 	public void setFileSavePath(String fileSavePath) {
+		if (fileSavePath == null || "".equals(fileSavePath.trim())) {
+			fileSavePath = Constant.FILE_SAVE_PATH;
+		}
 		this.fileSavePath = fileSavePath;
 	}
 
@@ -35,6 +40,9 @@ public class DownLoadConfig {
 	}
 
 	public void setThreadNumber(Integer threadNumber) {
+		if (threadNumber == null || threadNumber < 1) {
+			threadNumber = Constant.DOWNLOAD_THREAD_NUMBER;
+		}
 		this.threadNumber = threadNumber;
 	}
 
