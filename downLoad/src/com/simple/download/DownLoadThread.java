@@ -27,12 +27,18 @@ public class DownLoadThread implements Runnable {
 
 	@Override
 	public void run() {
+		System.out.println(Thread.currentThread().getName() + "开始执行");
+		long start = System.currentTimeMillis();
 		download();
+		System.out.println(Thread.currentThread().getName() + "执行完毕! 耗时:"
+				+ (System.currentTimeMillis() - start));
 	}
 
 	public void download() {
 		try {
 			URL url = new URL(info.getDownloadUrl());
+			System.out.println(Thread.currentThread().getName() + " 下载参数:"
+					+ info.toString());
 			HttpURLConnection connection = (HttpURLConnection) url
 					.openConnection();
 			connection.setConnectTimeout(info.getConnectTimeout());

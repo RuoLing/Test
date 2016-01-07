@@ -89,4 +89,14 @@ public class DownLoadInfo implements Serializable {
 		this.status = status;
 	}
 
+	@Override
+	public String toString() {
+		return "DownLoadInfo [startPos=" + startPos + ", endPos=" + endPos
+				+ ", completeLength=" + completeLength + ", connectTimeout="
+				+ connectTimeout + ", readTimeout=" + readTimeout
+				+ ", bufferSize=" + bufferSize + ", downloadUrl=" + downloadUrl
+				+ ", status=" + status + ", randomAccessFile="
+				+ randomAccessFile + "]";
+	}
+
 }
