@@ -1,21 +1,45 @@
 package com.simple.download.bean;
 
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.simple.download.constant.Constant;
+import com.simple.download.utils.DownLoadUtil;
 
 public class DownLoadInfo implements Serializable {
 	private static final long serialVersionUID = 73015694943119752L;
 	private int startPos;
 	private int endPos;
 	private int completeLength;
+	private int totalLength;
 	private int connectTimeout = Constant.CONNECT_TIMEOUT;
 	private int readTimeout = Constant.READ_TIMEOUT;
 	private int bufferSize = Constant.BUFFER_SIZE;
 	private String downloadUrl;
-	private String status;
+	private String status = Constant.THREAD_STATUS_INIT;
+	private Integer result = Constant.THREAD_RESULT_FAIL;
 	private RandomAccessFile randomAccessFile;
+	private InputStream inputStream;
+
+	private ReentrantLock lock = new ReentrantLock();
+
+	public int getTotalLength() {
+		return totalLength;
+	}
+
+	public void setTotalLength(int totalLength) {
+		this.totalLength = totalLength;
+	}
+
+	public InputStream getInputStream() {
+		return inputStream;
+	}
+
+	public void setInputStream(InputStream inputStream) {
+		this.inputStream = inputStream;
+	}
 
 	public RandomAccessFile getRandomAccessFile() {
 		return randomAccessFile;
@@ -74,11 +98,21 @@ public class DownLoadInfo implements Serializable {
 	}
 
 	public int getCompleteLength() {
-		return completeLength;
+		try {
+			lock.lock();
+			return completeLength;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public void setCompleteLength(int completeLength) {
-		this.completeLength = completeLength;
+		try {
+			lock.lock();
+			this.completeLength = completeLength;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	public String getStatus() {
@@ -89,6 +123,14 @@ public class DownLoadInfo implements Serializable {
 		this.status = status;
 	}
 
+	public Integer getResult() {
+		return result;
+	}
+
+	public void setResult(Integer result) {
+		this.result = result;
+	}
+
 	@Override
 	public String toString() {
 		return "DownLoadInfo [startPos=" + startPos + ", endPos=" + endPos
@@ -97,6 +139,10 @@ public class DownLoadInfo implements Serializable {
 				+ ", bufferSize=" + bufferSize + ", downloadUrl=" + downloadUrl
 				+ ", status=" + status + ", randomAccessFile="
 				+ randomAccessFile + "]";
+	}
+
+	public void close() {
+		DownLoadUtil.close(this.randomAccessFile, this.inputStream);
 	}
 
 }

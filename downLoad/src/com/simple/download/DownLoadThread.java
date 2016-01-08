@@ -3,12 +3,9 @@ package com.simple.download;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 import com.simple.download.bean.DownLoadInfo;
-import com.simple.download.utils.DownLoadUtil;
+import com.simple.download.constant.Constant;
 
 public class DownLoadThread implements Runnable {
 	private DownLoadInfo info;
@@ -27,52 +24,37 @@ public class DownLoadThread implements Runnable {
 
 	@Override
 	public void run() {
+		info.setStatus(Constant.THREAD_STATUS_RUNNING);
 		System.out.println(Thread.currentThread().getName() + "开始执行");
 		long start = System.currentTimeMillis();
 		download();
 		System.out.println(Thread.currentThread().getName() + "执行完毕! 耗时:"
 				+ (System.currentTimeMillis() - start));
+		info.setStatus(Constant.THREAD_STATUS_STOP);
 	}
 
 	public void download() {
-		try {
-			URL url = new URL(info.getDownloadUrl());
-			System.out.println(Thread.currentThread().getName() + " 下载参数:"
-					+ info.toString());
-			HttpURLConnection connection = (HttpURLConnection) url
-					.openConnection();
-			connection.setConnectTimeout(info.getConnectTimeout());
-			connection.setReadTimeout(info.getReadTimeout());
-			DownLoadUtil.setHeader(connection);
-			DownLoadUtil.setRange(connection, info);
-			connection.connect();
-			int responseCode = connection.getResponseCode();
-			if (responseCode == HttpURLConnection.HTTP_OK
-					|| responseCode == HttpURLConnection.HTTP_PARTIAL) {
-				InputStream inputStream = connection.getInputStream();
-				writeFile(info, inputStream);
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		write2File(info);
 	}
 
-	public void writeFile(DownLoadInfo info, InputStream is) {
+	public void write2File(DownLoadInfo info) {
 		RandomAccessFile raf = null;
+		InputStream is = null;
 		try {
-			int len = -1;
 			raf = info.getRandomAccessFile();
-			raf.seek(info.getStartPos());
+			is = info.getInputStream();
 			byte[] buf = new byte[info.getBufferSize()];
+			int len = 0;
 			while ((len = is.read(buf)) != -1) {
 				raf.write(buf, 0, len);
+				int completeLength = info.getCompleteLength();
+				info.setCompleteLength(completeLength + len);
 			}
+			info.setResult(Constant.THREAD_RESULT_SUCCESS);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} finally {
-			DownLoadUtil.close(raf, is);
+			info.close();
 		}
 	}
 
